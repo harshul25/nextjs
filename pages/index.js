@@ -1,65 +1,102 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import { useState } from 'react';
+import Head from 'next/head';
+
+// Move your 'schedule' object outside the component 
+// (or into a separate JSON file)
+const schedule = {
+  1: { warmup: { title: "#1 Two Sum", url: "https://leetcode.com/problems/two-sum" }, revision: null, work: [{ title: "#217 Contains Duplicate", url: "https://leetcode.com/problems/contains-duplicate" }, { title: "#242 Valid Anagram", url: "https://leetcode.com/problems/valid-anagram" }] },
+  2: { warmup: { title: "#217 Contains Duplicate", url: "https://leetcode.com/problems/contains-duplicate" }, revision: { title: "#242 Valid Anagram", url: "https://leetcode.com/problems/valid-anagram" }, work: [{ title: "#238 Product of Array Except Self", url: "https://leetcode.com/problems/product-of-array-except-self" }, { title: "#53 Maximum Subarray", url: "https://leetcode.com/problems/maximum-subarray" }, { title: "#128 Longest Consecutive Sequence", url: "https://leetcode.com/problems/longest-consecutive-sequence" }] },
+  3: { warmup: { title: "#242 Valid Anagram", url: "https://leetcode.com/problems/valid-anagram" }, revision: { title: "#53 Maximum Subarray", url: "https://leetcode.com/problems/maximum-subarray" }, work: [{ title: "#49 Group Anagrams", url: "https://leetcode.com/problems/group-anagrams" }, { title: "#347 Top K Frequent Elements", url: "https://leetcode.com/problems/top-k-frequent-elements" }, { title: "#125 Valid Palindrome", url: "https://leetcode.com/problems/valid-palindrome" }] },
+  4: { warmup: { title: "#125 Valid Palindrome", url: "https://leetcode.com/problems/valid-palindrome" }, revision: { title: "#128 Longest Consecutive Sequence", url: "https://leetcode.com/problems/longest-consecutive-sequence" }, work: [{ title: "#15 3Sum", url: "https://leetcode.com/problems/3sum" }, { title: "#11 Container With Most Water", url: "https://leetcode.com/problems/container-with-most-water" }, { title: "#42 Trapping Rain Water", url: "https://leetcode.com/problems/trapping-rain-water" }] },
+  5: { warmup: { title: "#283 Move Zeroes", url: "https://leetcode.com/problems/move-zeroes" }, revision: { title: "#42 Trapping Rain Water", url: "https://leetcode.com/problems/trapping-rain-water" }, work: [{ title: "#75 Sort Colors", url: "https://leetcode.com/problems/sort-colors" }] },
+  6: { warmup: { title: "#121 Buy/Sell Stock", url: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock" }, revision: { title: "#75 Sort Colors", url: "https://leetcode.com/problems/sort-colors" }, work: [{ title: "#3 Longest Substring", url: "https://leetcode.com/problems/longest-substring-without-repeating-characters" }] },
+  7: { warmup: { title: "#20 Valid Parentheses", url: "https://leetcode.com/problems/valid-parentheses" }, revision: { title: "#3 Longest Substring", url: "https://leetcode.com/problems/longest-substring-without-repeating-characters" }, work: [{ title: "#424 Longest Repeating Char Replacement", url: "https://leetcode.com/problems/longest-repeating-character-replacement" }, { title: "#567 Permutation in String", url: "https://leetcode.com/problems/permutation-in-string" }] },
+  8: { warmup: { title: "#496 Next Greater Element", url: "https://leetcode.com/problems/next-greater-element-i" }, revision: { title: "#424 Longest Repeating Char Replacement", url: "https://leetcode.com/problems/longest-repeating-character-replacement" }, work: [{ title: "#76 Minimum Window Substring", url: "https://leetcode.com/problems/minimum-window-substring" }, { title: "#239 Sliding Window Max", url: "https://leetcode.com/problems/sliding-window-maximum" }] },
+  9: { warmup: { title: "#844 Backspace String Compare", url: "https://leetcode.com/problems/backspace-string-compare" }, revision: { title: "#76 Minimum Window Substring", url: "https://leetcode.com/problems/minimum-window-substring" }, work: [{ title: "#20 Valid Parentheses", url: "https://leetcode.com/problems/valid-parentheses" }, { title: "#155 Min Stack", url: "https://leetcode.com/problems/min-stack" }] },
+  10: { warmup: { title: "#1047 Remove All Adjacent Duplicates", url: "https://leetcode.com/problems/remove-all-adjacent-duplicates-in-string" }, revision: { title: "#155 Min Stack", url: "https://leetcode.com/problems/min-stack" }, work: [{ title: "#150 Reverse Polish Notation", url: "https://leetcode.com/problems/evaluate-reverse-polish-notation" }, { title: "#739 Daily Temperatures", url: "https://leetcode.com/problems/daily-temperatures" }, { title: "#84 Largest Rectangle", url: "https://leetcode.com/problems/largest-rectangle-in-histogram" }] },
+  11: { warmup: { title: "#682 Baseball Game", url: "https://leetcode.com/problems/baseball-game" }, revision: { title: "#84 Largest Rectangle", url: "https://leetcode.com/problems/largest-rectangle-in-histogram" }, work: [{ title: "#22 Generate Parentheses", url: "https://leetcode.com/problems/generate-parentheses" }] },
+  12: { warmup: { title: "#704 Binary Search", url: "https://leetcode.com/problems/binary-search" }, revision: { title: "#22 Generate Parentheses", url: "https://leetcode.com/problems/generate-parentheses" }, work: [{ title: "#153 Find Min Rotated", url: "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array" }, { title: "#33 Search Rotated", url: "https://leetcode.com/problems/search-in-rotated-sorted-array" }] },
+  13: { warmup: { title: "#206 Reverse Linked List", url: "https://leetcode.com/problems/reverse-linked-list" }, revision: { title: "#33 Search Rotated", url: "https://leetcode.com/problems/search-in-rotated-sorted-array" }, work: [{ title: "#875 Koko Eating Bananas", url: "https://leetcode.com/problems/koko-eating-bananas" }, { title: "#1011 Capacity To Ship", url: "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days" }] },
+  14: { warmup: { title: "#21 Merge Two Lists", url: "https://leetcode.com/problems/merge-two-sorted-lists" }, revision: { title: "#1011 Capacity To Ship", url: "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days" }, work: [{ title: "#4 Median of Two Sorted", url: "https://leetcode.com/problems/median-of-two-sorted-arrays" }, { title: "#206 Reverse List", url: "https://leetcode.com/problems/reverse-linked-list" }] },
+  15: { warmup: { title: "#141 Linked List Cycle", url: "https://leetcode.com/problems/linked-list-cycle" }, revision: { title: "#4 Median of Two Sorted", url: "https://leetcode.com/problems/median-of-two-sorted-arrays" }, work: [{ title: "#21 Merge Two Sorted Lists", url: "https://leetcode.com/problems/merge-two-sorted-lists" }, { title: "#141 Linked List Cycle", url: "https://leetcode.com/problems/linked-list-cycle" }] },
+  16: { warmup: { title: "#35 Search Insert Pos", url: "https://leetcode.com/problems/search-insert-position" }, revision: { title: "#141 Linked List Cycle", url: "https://leetcode.com/problems/linked-list-cycle" }, work: [{ title: "#143 Reorder List", url: "https://leetcode.com/problems/reorder-list" }, { title: "#19 Remove Nth Node", url: "https://leetcode.com/problems/remove-nth-node-from-end-of-list" }] },
+  17: { warmup: { title: "#278 First Bad Version", url: "https://leetcode.com/problems/first-bad-version" }, revision: { title: "#19 Remove Nth Node", url: "https://leetcode.com/problems/remove-nth-node-from-end-of-list" }, work: [{ title: "#138 Copy List Random", url: "https://leetcode.com/problems/copy-list-with-random-pointer" }, { title: "#146 LRU Cache", url: "https://leetcode.com/problems/lru-cache" }] },
+  18: { warmup: { title: "#69 Sqrt(x)", url: "https://leetcode.com/problems/sqrtx" }, revision: { title: "#146 LRU Cache", url: "https://leetcode.com/problems/lru-cache" }, work: [{ title: "#23 Merge K Lists", url: "https://leetcode.com/problems/merge-k-sorted-lists" }] },
+  19: { warmup: { title: "#104 Max Depth BT", url: "https://leetcode.com/problems/maximum-depth-of-binary-tree" }, revision: { title: "#23 Merge K Lists", url: "https://leetcode.com/problems/merge-k-sorted-lists" }, work: [{ title: "#226 Invert Binary Tree", url: "https://leetcode.com/problems/invert-binary-tree" }, { title: "#543 Diameter Binary Tree", url: "https://leetcode.com/problems/diameter-of-binary-tree" }] },
+  20: { warmup: { title: "#110 Balanced BT", url: "https://leetcode.com/problems/balanced-binary-tree" }, revision: { title: "#543 Diameter Binary Tree", url: "https://leetcode.com/problems/diameter-of-binary-tree" }, work: [{ title: "#110 Balanced Binary Tree", url: "https://leetcode.com/problems/balanced-binary-tree" }, { title: "#235 LCA of BST", url: "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree" }] },
+  21: { warmup: { title: "#703 Kth Largest Stream", url: "https://leetcode.com/problems/kth-largest-element-in-a-stream" }, revision: { title: "#235 LCA of BST", url: "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree" }, work: [{ title: "#102 Level Order", url: "https://leetcode.com/problems/binary-tree-level-order-traversal" }, { title: "#199 Right Side View", url: "https://leetcode.com/problems/binary-tree-right-side-view" }] },
+  22: { warmup: { title: "#1046 Last Stone Weight", url: "https://leetcode.com/problems/last-stone-weight" }, revision: { title: "#199 Right Side View", url: "https://leetcode.com/problems/binary-tree-right-side-view" }, work: [{ title: "#98 Validate BST", url: "https://leetcode.com/problems/validate-binary-search-tree" }, { title: "#230 Kth Smallest BST", url: "https://leetcode.com/problems/kth-smallest-element-in-a-bst" }] },
+  23: { warmup: { title: "#506 Relative Ranks", url: "https://leetcode.com/problems/relative-ranks" }, revision: { title: "#230 Kth Smallest BST", url: "https://leetcode.com/problems/kth-smallest-element-in-a-bst" }, work: [{ title: "#105 Construct BT Pre/In", url: "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal" }, { title: "#124 Binary Tree Max Path", url: "https://leetcode.com/problems/binary-tree-maximum-path-sum" }] },
+  24: { warmup: { title: "#733 Flood Fill", url: "https://leetcode.com/problems/flood-fill" }, revision: { title: "#124 Binary Tree Max Path", url: "https://leetcode.com/problems/binary-tree-maximum-path-sum" }, work: [{ title: "#297 Serialize/Deserialize BT", url: "https://leetcode.com/problems/serialize-and-deserialize-binary-tree" }, { title: "#215 Kth Largest Element", url: "https://leetcode.com/problems/kth-largest-element-in-an-array" }] },
+  25: { warmup: { title: "#463 Island Perimeter", url: "https://leetcode.com/problems/island-perimeter" }, revision: { title: "#215 Kth Largest Element", url: "https://leetcode.com/problems/kth-largest-element-in-an-array" }, work: [{ title: "#295 Find Median Data Stream", url: "https://leetcode.com/problems/find-median-from-data-stream" }, { title: "#621 Task Scheduler", url: "https://leetcode.com/problems/task-scheduler" }] },
+  26: { warmup: { title: "#997 Find Town Judge", url: "https://leetcode.com/problems/find-the-town-judge" }, revision: { title: "#621 Task Scheduler", url: "https://leetcode.com/problems/task-scheduler" }, work: [{ title: "#46 Permutations", url: "https://leetcode.com/problems/permutations" }, { title: "#78 Subsets", url: "https://leetcode.com/problems/subsets" }] },
+  27: { warmup: { title: "#1971 Find Path in Graph", url: "https://leetcode.com/problems/find-if-path-exists-in-graph" }, revision: { title: "#78 Subsets", url: "https://leetcode.com/problems/subsets" }, work: [{ title: "#39 Combination Sum", url: "https://leetcode.com/problems/combination-sum" }, { title: "#40 Combination Sum II", url: "https://leetcode.com/problems/combination-sum-ii" }] },
+  28: { warmup: { title: "#401 Binary Watch", url: "https://leetcode.com/problems/binary-watch" }, revision: { title: "#40 Combination Sum II", url: "https://leetcode.com/problems/combination-sum-ii" }, work: [{ title: "#79 Word Search", url: "https://leetcode.com/problems/word-search" }, { title: "#131 Palindrome Partitioning", url: "https://leetcode.com/problems/palindrome-partitioning" }] },
+  29: { warmup: { title: "#784 Letter Case Permutation", url: "https://leetcode.com/problems/letter-case-permutation" }, revision: { title: "#131 Palindrome Partitioning", url: "https://leetcode.com/problems/palindrome-partitioning" }, work: [{ title: "#51 N-Queens", url: "https://leetcode.com/problems/n-queens" }, { title: "#200 Number of Islands", url: "https://leetcode.com/problems/number-of-islands" }] },
+  30: { warmup: { title: "#392 Is Subsequence", url: "https://leetcode.com/problems/is-subsequence" }, revision: { title: "#200 Number of Islands", url: "https://leetcode.com/problems/number-of-islands" }, work: [{ title: "#695 Max Area Island", url: "https://leetcode.com/problems/max-area-of-island" }, { title: "#417 Pacific Atlantic Flow", url: "https://leetcode.com/problems/pacific-atlantic-water-flow" }] },
+  31: { warmup: { title: "#70 Climbing Stairs", url: "https://leetcode.com/problems/climbing-stairs" }, revision: { title: "#417 Pacific Atlantic Flow", url: "https://leetcode.com/problems/pacific-atlantic-water-flow" }, work: [{ title: "#994 Rotting Oranges", url: "https://leetcode.com/problems/rotting-oranges" }, { title: "#207 Course Schedule", url: "https://leetcode.com/problems/course-schedule" }] },
+  32: { warmup: { title: "#746 Min Cost Climbing", url: "https://leetcode.com/problems/min-cost-climbing-stairs" }, revision: { title: "#207 Course Schedule", url: "https://leetcode.com/problems/course-schedule" }, work: [{ title: "#210 Course Schedule II", url: "https://leetcode.com/problems/course-schedule-ii" }, { title: "#684 Redundant Connection", url: "https://leetcode.com/problems/redundant-connection" }] },
+  33: { warmup: { title: "#509 Fibonacci Number", url: "https://leetcode.com/problems/fibonacci-number" }, revision: { title: "#684 Redundant Connection", url: "https://leetcode.com/problems/redundant-connection" }, work: [{ title: "#70 Climbing Stairs", url: "https://leetcode.com/problems/climbing-stairs" }, { title: "#746 Min Cost Climbing Stairs", url: "https://leetcode.com/problems/min-cost-climbing-stairs" }] },
+  34: { warmup: { title: "#338 Counting Bits", url: "https://leetcode.com/problems/counting-bits" }, revision: { title: "#746 Min Cost Climbing Stairs", url: "https://leetcode.com/problems/min-cost-climbing-stairs" }, work: [{ title: "#198 House Robber", url: "https://leetcode.com/problems/house-robber" }, { title: "#213 House Robber II", url: "https://leetcode.com/problems/house-robber-ii" }] },
+  35: { warmup: { title: "#118 Pascal's Triangle", url: "https://leetcode.com/problems/pascals-triangle" }, revision: { title: "#213 House Robber II", url: "https://leetcode.com/problems/house-robber-ii" }, work: [{ title: "#5 Longest Palindromic Substring", url: "https://leetcode.com/problems/longest-palindromic-substring" }, { title: "#647 Palindromic Substrings", url: "https://leetcode.com/problems/palindromic-substrings" }] },
+  36: { warmup: { title: "#119 Pascal's Triangle II", url: "https://leetcode.com/problems/pascals-triangle-ii" }, revision: { title: "#647 Palindromic Substrings", url: "https://leetcode.com/problems/palindromic-substrings" }, work: [{ title: "#91 Decode Ways", url: "https://leetcode.com/problems/decode-ways" }, { title: "#322 Coin Change", url: "https://leetcode.com/problems/coin-change" }] },
+  37: { warmup: { title: "#303 Range Sum Query", url: "https://leetcode.com/problems/range-sum-query-immutable" }, revision: { title: "#322 Coin Change", url: "https://leetcode.com/problems/coin-change" }, work: [{ title: "#139 Word Break", url: "https://leetcode.com/problems/word-break" }, { title: "#300 Longest Increasing Subseq", url: "https://leetcode.com/problems/longest-increasing-subsequence" }] },
+  38: { warmup: { title: "#136 Single Number", url: "https://leetcode.com/problems/single-number" }, revision: { title: "#300 Longest Increasing Subseq", url: "https://leetcode.com/problems/longest-increasing-subsequence" }, work: [{ title: "#416 Partition Equal Subset Sum", url: "https://leetcode.com/problems/partition-equal-subset-sum" }, { title: "#152 Max Product Subarray", url: "https://leetcode.com/problems/maximum-product-subarray" }] },
+  39: { warmup: { title: "#191 Number of 1 Bits", url: "https://leetcode.com/problems/number-of-1-bits" }, revision: { title: "#152 Max Product Subarray", url: "https://leetcode.com/problems/maximum-product-subarray" }, work: [{ title: "#455 Assign Cookies", url: "https://leetcode.com/problems/assign-cookies" }, { title: "#860 Lemonade Change", url: "https://leetcode.com/problems/lemonade-change" }] },
+  40: { warmup: { title: "#268 Missing Number", url: "https://leetcode.com/problems/missing-number" }, revision: { title: "#860 Lemonade Change", url: "https://leetcode.com/problems/lemonade-change" }, work: [{ title: "#55 Jump Game", url: "https://leetcode.com/problems/jump-game" }, { title: "#45 Jump Game II", url: "https://leetcode.com/problems/jump-game-ii" }] },
+  41: { warmup: { title: "#202 Happy Number", url: "https://leetcode.com/problems/happy-number" }, revision: { title: "#45 Jump Game II", url: "https://leetcode.com/problems/jump-game-ii" }, work: [{ title: "#134 Gas Station", url: "https://leetcode.com/problems/gas-station" }, { title: "#763 Partition Labels", url: "https://leetcode.com/problems/partition-labels" }] },
+  42: { warmup: { title: "#9 Palindrome Number", url: "https://leetcode.com/problems/palindrome-number" }, revision: { title: "#763 Partition Labels", url: "https://leetcode.com/problems/partition-labels" }, work: [{ title: "#678 Valid Parenthesis String", url: "https://leetcode.com/problems/valid-parenthesis-string" }, { title: "#252 Meeting Rooms", url: "https://leetcode.com/problems/meeting-rooms" }] },
+  43: { warmup: { title: "#252 Meeting Rooms", url: "https://leetcode.com/problems/meeting-rooms" }, revision: { title: "#252 Meeting Rooms", url: "https://leetcode.com/problems/meeting-rooms" }, work: [{ title: "#56 Merge Intervals", url: "https://leetcode.com/problems/merge-intervals" }, { title: "#57 Insert Interval", url: "https://leetcode.com/problems/insert-interval" }] },
+  44: { warmup: { title: "#455 Assign Cookies", url: "https://leetcode.com/problems/assign-cookies" }, revision: { title: "#57 Insert Interval", url: "https://leetcode.com/problems/insert-interval" }, work: [{ title: "#435 Non-overlapping Intervals", url: "https://leetcode.com/problems/non-overlapping-intervals" }, { title: "#253 Meeting Rooms II", url: "https://leetcode.com/problems/meeting-rooms-ii" }] },
+  45: { warmup: { title: "#136 Single Number", url: "https://leetcode.com/problems/single-number" }, revision: { title: "#253 Meeting Rooms II", url: "https://leetcode.com/problems/meeting-rooms-ii" }, work: [{ title: "#136 Single Number", url: "https://leetcode.com/problems/single-number" }, { title: "#191 Number of 1 Bits", url: "https://leetcode.com/problems/number-of-1-bits" }] },
+  46: { warmup: { title: "#268 Missing Number", url: "https://leetcode.com/problems/missing-number" }, revision: { title: "#191 Number of 1 Bits", url: "https://leetcode.com/problems/number-of-1-bits" }, work: [{ title: "#268 Missing Number", url: "https://leetcode.com/problems/missing-number" }, { title: "#338 Counting Bits", url: "https://leetcode.com/problems/counting-bits" }] },
+  47: { warmup: { title: "#202 Happy Number", url: "https://leetcode.com/problems/happy-number" }, revision: { title: "#338 Counting Bits", url: "https://leetcode.com/problems/counting-bits" }, work: [{ title: "#202 Happy Number", url: "https://leetcode.com/problems/happy-number" }, { title: "#9 Palindrome Number", url: "https://leetcode.com/problems/palindrome-number" }] },
+  48: { warmup: { title: "Review", url: "#" }, revision: { title: "Review", url: "#" }, work: [{ title: "Final Review", url: "#" }, { title: "Final Review", url: "#" }] },
+  49: { warmup: { title: "Review", url: "#" }, revision: { title: "Review", url: "#" }, work: [{ title: "Final Review", url: "#" }, { title: "Final Review", url: "#" }] },
+  // Week 8: PTO SPRINT (No new problems, focus on speed/re-solving ★★)
+  50: { warmup: { title: "Re-solve ★★", url: "#" }, revision: { title: "Re-solve ★★", url: "#" }, work: [{ title: "Timed Speed Run (30m)", url: "#" }, { title: "Timed Speed Run (30m)", url: "#" }] },
+  51: { warmup: { title: "Re-solve ★★", url: "#" }, revision: { title: "Re-solve ★★", url: "#" }, work: [{ title: "Timed Speed Run (30m)", url: "#" }, { title: "Timed Speed Run (30m)", url: "#" }] },
+  52: { warmup: { title: "Weakest Pattern", url: "#" }, revision: { title: "Weakest Pattern", url: "#" }, work: [{ title: "5 Random Mediums", url: "#" }] },
+  53: { warmup: { title: "Mock Interview", url: "#" }, revision: { title: "Mock Interview", url: "#" }, work: [{ title: "Pramp/Interviewing.io", url: "#" }] },
+  54: { warmup: { title: "Re-solve Slowest", url: "#" }, revision: { title: "Re-solve Slowest", url: "#" }, work: [{ title: "Review flagged problems", url: "#" }] },
+  55: { warmup: { title: "Hard Session", url: "#" }, revision: { title: "Hard Session", url: "#" }, work: [{ title: "2 Hards (45m each)", url: "#" }] },
+  56: { warmup: { title: "Rest", url: "#" }, revision: { title: "Rest", url: "#" }, work: [{ title: "Complete Rest", url: "#" }] }
+};
+
 
 export default function Home() {
+  const [day, setDay] = useState(1);
+  const data = schedule[day];
+
   return (
-    <div className={styles.container}>
+    <div style={{ maxWidth: '600px', margin: '40px auto', padding: '20px' }}>
       <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>LeetCode 2-Month Master</title>
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+      <div className="controls" style={{ marginBottom: '20px' }}>
+        <label>I am on Day: </label>
+        <input
+          type="number"
+          value={day}
+          onChange={(e) => setDay(Number(e.target.value))}
+        />
+      </div>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+      <div className="day-box" style={{ border: '2px solid #333', padding: '20px', borderRadius: '8px' }}>
+        <h2>Day {day}</h2>
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+        <h3>☀️ Morning Warm-up</h3>
+        {data?.warmup && <a href={data.warmup.url} target="_blank">{data.warmup.title}</a>}
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+        <h3>🍱 Lunch Revision</h3>
+        {data?.revision ? <a href={data.revision.url} target="_blank">{data.revision.title}</a> : <p>None</p>}
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+        <h3>🌙 Evening Mock-Interview</h3>
+        {data?.work.map((p, i) => (
+          <div key={i}><input type="checkbox" /> <a href={p.url} target="_blank">{p.title}</a></div>
+        ))}
+      </div>
     </div>
-  )
+  );
 }
